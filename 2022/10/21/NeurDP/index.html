@@ -130,15 +130,15 @@
 <p>1）编译优化策略通常大幅度改变源码的结构。这种修改不仅体现在指令类型等层面，更多的是结构上的改变，有一些优化策略甚至会提前对一些语句进行运算，预测其结果，例如常量传播。这种改变会导致源码中有很多冗余的文本，其语义在二进制代码中本身就不存在。端到端的训练需要学习优化策略，例如上文提到的算术运算，训练这样的模型是很困难的。</p>
 <p>2）对低级程序语言（二进制文件）和高级程序语言（源码文件）进行划分，并形成准确的对应关系是不容易的。以往的工作通常使用函数或者基本块进行划分，但是函数和基本块内的语句数量是没有上限的，对于较大的基本块或函数，模型很难对其进行翻译。根据调试信息划分面临着和难点1一样的问题。而如果设置最大窗口顺序划分指令序列，又会面临对应不准确的问题。</p>
 <h2 id="整体设计"><a href="#整体设计" class="headerlink" title="整体设计"></a>整体设计</h2><p>NeurDP主要解决当前基于神经网络的反编译方法无法解决优化后二进制反编译的问题。其中预处理部分对LPL进行一些静态分析，包括SSA形式转换，和一些简单的寄存器传播生成低级中间语言LIR。OTU是方法的核心部分，根据数据依赖关系将LIR和HIR划分为更小且可以准确匹配的代码片段。HIR是基于LLVM IR简化版本的高级中间语言。NeurDP模型部分使用图神经网络GNN学习LIR的数据依赖图，并生成HIR指令序列。HIR Generation对生成的指令序列操作数进行识别和填充。最终，结合函数的参数、返回值以及控制结构，并使用规则将HIR转换为HPL，从而生成高级语言函数。</p>
-<p><img src="NeurDP-overview.jpg"></p>
+<p><img src="NeurDP-overview.jpg" alt=""></p>
 <p>为了解决困难1，本方法使用中间表示IR作为连接LPL和HPL的桥梁。IR经过了编译器前端优化，因此其文本上包含的信息和结构与LPL更加的接近。而从IR到HPL通过制定规则可以很容易实现。因此，我们选择用模型去完成从LPL到IR的翻译。</p>
 <p>为了解决困难2，本方法设计了一种基于数据依赖图的切分方式，将基本块切分成更小的代码片段。基于我们的分析，绝大多数的优化策略都是基于数据流分析的。优化策略通常不会改变基本块的输入和输出的对应关系。两个不同输出在数据依赖图中的子图存在重叠部分和独立部分。考虑到对一个输出的优化不能对另一个输出的结果产生影响，优化往往是在这些重叠或独立部分的内部发生的。因此，这些子图在HIR和LIR中可以较准确地进行对应。我们按照这个原则对LIR和HIR的基本块进行划分，获得更细粒度且对应准确的LIR-HIR代码片段对作为训练集。</p>
 <h2 id="实验效果"><a href="#实验效果" class="headerlink" title="实验效果"></a>实验效果</h2><p>我们测试了其他网络在使用源码，AST和IR时代码翻译的表现和NeurDP进行对比，结果如下表。可以看到使用IR之后普通的序列模型准确率也有大幅度地提升。NeurDP使用图神经网络对输入进行编码，效果比其他序列模型更好。</p>
-<p><img src="NeurDP-Table6.jpg"></p>
+<p><img src="NeurDP-Table6.jpg" alt=""></p>
 <p>我们测试了使用不同的基本块切分方式的代码翻译的表现，结果如下图，可以看到基于数据流的划分方式比顺序滑动窗口效果明显提升。而使用我们的OTU比普通的数据流的窗口效果更好。</p>
-<p><img src="NeurDP-Table5.jpg"></p>
+<p><img src="NeurDP-Table5.jpg" alt=""></p>
 <p>为了验证NeurDP对优化后代码的处理能力，我们将他与其他两个神经网络反编译工作Neutron和Coda以及著名的开源反编译工具RetDec在clang的O0-O3优化级别下的准确率进行了对比，结果如下表。可以看到NeurDP效果比其他工具都好，并且对于不同优化级别的代码，NeurDP的表现差异较小。RetDec由于其功能还不完善，出现了很多函数无法识别的错误。</p>
-<p><img src="NeurDP-Table4.jpg"></p>
+<p><img src="NeurDP-Table4.jpg" alt=""></p>
 <p>Strip是一个从二进制中去掉调试和符号信息的工具，会增加反编译的难度。我们对比了在保留所有调试和符号信息、去掉调试信息和去掉所有调试和符号信息的条件下，NeurDP在O0-O3三个优化级别上的表现。结果如下表，可以看到NeurDP在去掉符号信息的情况下也表现良好。</p>
 <p>我们测试使用的数据集公开在了<a target="_blank" rel="noopener" href="https://github.com/zijiancogito/neur-dp-data">https://github.com/zijiancogito/neur-dp-data</a> 。</p>
 	  
@@ -341,6 +341,24 @@
   window.addEventListener('DOMContentLoaded', Highlighting, false);
   window.addEventListener('load', Highlighting, false);
   </script>
+
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 
 
 </body>

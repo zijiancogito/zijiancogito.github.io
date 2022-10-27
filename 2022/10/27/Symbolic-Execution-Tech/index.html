@@ -133,14 +133,14 @@
 </li>
 <li><p>$\sigma$ is a symbolic store that associates program variables with either expressions over concreate values or symbolic values $ \alpha_i $.</p>
 </li>
-<li><p>$\pi$ denotes the <strong>path constraints</strong>, i.e., is a formula that expresses a set of assumptions on the symbols $\alpha_i$ due to branches taken in the execution execution to reach <em>stmt</em>. At the beginning of the analysis, $\pi &#x3D; true$.</p>
+<li><p>$\pi$ denotes the <strong>path constraints</strong>, i.e., is a formula that expresses a set of assumptions on the symbols $\alpha_i$ due to branches taken in the execution execution to reach <em>stmt</em>. At the beginning of the analysis, $\pi = true$.</p>
 </li>
 </ul>
 <p>Depending on <em>stmt</em>, the symbolic engine changes the state as follows:</p>
 <ul>
-<li><p>The evaluation of an assignment $x&#x3D;e$ updates the symbolic store $\sigma$ by associating x with a new symbolic expression $e_s$.</p>
+<li><p>The evaluation of an assignment $x=e$ updates the symbolic store $\sigma$ by associating x with a new symbolic expression $e_s$.</p>
 </li>
-<li><p>The evaluation of a conditional branch</p>
+<li><p>The evaluation of a conditional branch </p>
 </li>
 </ul>
 	  
@@ -324,6 +324,24 @@
   window.addEventListener('DOMContentLoaded', Highlighting, false);
   window.addEventListener('load', Highlighting, false);
   </script>
+
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 
 
 </body>
