@@ -6,7 +6,7 @@
   <title>Symbolic Execution Tech | 春秋一语</title>
   <meta name="author" content="Zijian">
   
-  <meta name="description" content="A Survey of Symbolic Execution TechBackgroundThe key idea is to allow a program to take on symbolic-rather than concrete-input values.Execution is per">
+  <meta name="description" content="A Survey of Symbolic Execution TechAuthorRoberto Baldoni, Emilio Coppa, Daniele Cono D’elia, Camil Demetrescu, and Irene FinocchiSapienza University o">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -123,12 +123,12 @@
 	<div class="mypage">		
 	  		
 
-	  <h1 id="A-Survey-of-Symbolic-Execution-Tech"><a href="#A-Survey-of-Symbolic-Execution-Tech" class="headerlink" title="A Survey of Symbolic Execution Tech"></a>A Survey of Symbolic Execution Tech</h1><h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p>The key idea is to allow a program to take on <em>symbolic</em>-rather than <em>concrete</em>-input values.<br>Execution is performed by a symbolic execution engine.<br>It maintains for each explored control flow path:</p>
+	  <h1 id="A-Survey-of-Symbolic-Execution-Tech"><a href="#A-Survey-of-Symbolic-Execution-Tech" class="headerlink" title="A Survey of Symbolic Execution Tech"></a>A Survey of Symbolic Execution Tech</h1><h2 id="Author"><a href="#Author" class="headerlink" title="Author"></a>Author</h2><p>Roberto Baldoni, Emilio Coppa, Daniele Cono D’elia, Camil Demetrescu, and Irene Finocchi<br>Sapienza University of Rome</p>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p>The key idea is to allow a program to take on <em>symbolic</em>-rather than <em>concrete</em>-input values.<br>Execution is performed by a symbolic execution engine.<br>It maintains for each explored control flow path:</p>
 <p>(1) a first-order Boolean <em>formula</em> that describes the conditions satisfied by the branches taken along that path,</p>
 <p>(2) a <em>symbolic memory store</em> that maps variables to symbolic expressions or values.</p>
 <p>Evert value that cannot be determined by a static analysis of the code, such as an <strong>actual parameter</strong> of a function or the <strong>result of a system call</strong> that reads data from a stream, is <strong>represented by a symbol $\alpha_i$</strong>.</p>
-<p>At any time, the symbolic execution engine maintains a state $(stmt, \sigma, \pi)$ where:</p>
-<ul>
+<h4 id="At-any-time-the-symbolic-execution-engine-maintains-a-state-stmt-sigma-pi-where"><a href="#At-any-time-the-symbolic-execution-engine-maintains-a-state-stmt-sigma-pi-where" class="headerlink" title="At any time, the symbolic execution engine maintains a state $(stmt, \sigma, \pi)$ where:"></a>At any time, the symbolic execution engine maintains a state $(stmt, \sigma, \pi)$ where:</h4><ul>
 <li><p><em>stmt</em> is the next statement to evaluate. It can be an assignment, a conditional branch, or a jump.</p>
 </li>
 <li><p>$\sigma$ is a symbolic store that associates program variables with either expressions over concreate values or symbolic values $ \alpha_i $.</p>
@@ -136,11 +136,29 @@
 <li><p>$\pi$ denotes the <strong>path constraints</strong>, i.e., is a formula that expresses a set of assumptions on the symbols $\alpha_i$ due to branches taken in the execution execution to reach <em>stmt</em>. At the beginning of the analysis, $\pi = true$.</p>
 </li>
 </ul>
-<p>Depending on <em>stmt</em>, the symbolic engine changes the state as follows:</p>
-<ul>
+<h4 id="Depending-on-stmt-the-symbolic-engine-changes-the-state-as-follows"><a href="#Depending-on-stmt-the-symbolic-engine-changes-the-state-as-follows" class="headerlink" title="Depending on stmt, the symbolic engine changes the state as follows:"></a>Depending on <em>stmt</em>, the symbolic engine changes the state as follows:</h4><ul>
 <li><p>The evaluation of an assignment $x=e$ updates the symbolic store $\sigma$ by associating x with a new symbolic expression $e_s$.</p>
 </li>
-<li><p>The evaluation of a conditional branch </p>
+<li><p>The evaluation of a conditional branch if $e$ then $s_true$ else $s_false$ affects the path constraints $\pi$.</p>
+</li>
+<li><p>The evaluation of a jump <em>goto s</em> updates the execution state by advancing the symbolic execution to statement <em>s</em>.</p>
+</li>
+</ul>
+<h4 id="Challenges-in-Symbolic-Execution"><a href="#Challenges-in-Symbolic-Execution" class="headerlink" title="Challenges in Symbolic Execution"></a>Challenges in Symbolic Execution</h4><ul>
+<li><p>Memory: pointers, arrays and other complex objects?</p>
+</li>
+<li><p>Enviroment: interactions across software stacks?</p>
+</li>
+<li><p>State space explosion: path explosion?</p>
+</li>
+<li><p>Constraint solving: in practice?</p>
+</li>
+</ul>
+<h2 id="Symbolic-Execution-Engines"><a href="#Symbolic-Execution-Engines" class="headerlink" title="Symbolic Execution Engines"></a>Symbolic Execution Engines</h2><p>important principles for the design of symbolic executors</p>
+<h4 id="Mixing-Symbolic-and-Concrete-Execution-Concolic"><a href="#Mixing-Symbolic-and-Concrete-Execution-Concolic" class="headerlink" title="Mixing Symbolic and Concrete Execution (Concolic)"></a>Mixing Symbolic and Concrete Execution (Concolic)</h4><ul>
+<li><p><strong>Main limitation of classical symbolic execution</strong>: It cannot explore feasible executions that would  result in path constraints that cannot be dealt with. For example, external code not traceable by the executor, complex constraints involving (e.g., non-linear arithmetic or transcendental functions)</p>
+</li>
+<li><p><strong>Dynamic Symbolic Execution</strong>: the execution engine maintains a concrete store $\sigma_c$. As a consequence, the symbolic engine does not need to invoke the constraint solver to decide whether a branch condition is (un)satisfiable: this is directly tested by the concrete execution.</p>
 </li>
 </ul>
 	  
@@ -247,7 +265,7 @@
 	
 	   <a data-toggle="collapse" data-target="#toc"><i class="fa fa-bars"></i></a>
 	   <div id="toc" class="toc collapse in">
-			<ol class="toc-article"><li class="toc-article-item toc-article-level-1"><a class="toc-article-link" href="#A-Survey-of-Symbolic-Execution-Tech"><span class="toc-article-text">A Survey of Symbolic Execution Tech</span></a><ol class="toc-article-child"><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#Background"><span class="toc-article-text">Background</span></a></li></ol></li></ol>
+			<ol class="toc-article"><li class="toc-article-item toc-article-level-1"><a class="toc-article-link" href="#A-Survey-of-Symbolic-Execution-Tech"><span class="toc-article-text">A Survey of Symbolic Execution Tech</span></a><ol class="toc-article-child"><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#Author"><span class="toc-article-text">Author</span></a></li><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#Background"><span class="toc-article-text">Background</span></a><ol class="toc-article-child"><li class="toc-article-item toc-article-level-4"><a class="toc-article-link" href="#At-any-time-the-symbolic-execution-engine-maintains-a-state-stmt-sigma-pi-where"><span class="toc-article-text">At any time, the symbolic execution engine maintains a state $(stmt, \sigma, \pi)$ where:</span></a></li><li class="toc-article-item toc-article-level-4"><a class="toc-article-link" href="#Depending-on-stmt-the-symbolic-engine-changes-the-state-as-follows"><span class="toc-article-text">Depending on stmt, the symbolic engine changes the state as follows:</span></a></li><li class="toc-article-item toc-article-level-4"><a class="toc-article-link" href="#Challenges-in-Symbolic-Execution"><span class="toc-article-text">Challenges in Symbolic Execution</span></a></li></ol></li></ol></li><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#Symbolic-Execution-Engines"><span class="toc-article-text">Symbolic Execution Engines</span></a><ol class="toc-article-child"><li class="toc-article-item toc-article-level-4"><a class="toc-article-link" href="#Mixing-Symbolic-and-Concrete-Execution-Concolic"><span class="toc-article-text">Mixing Symbolic and Concrete Execution (Concolic)</span></a></li></ol></li></ol></li></ol></li></ol>
 		</div>
 	
 	</div>
