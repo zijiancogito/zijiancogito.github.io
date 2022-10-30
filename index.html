@@ -199,9 +199,11 @@
 </ul>
 <h2 id="Symbolic-Execution-Engines"><a href="#Symbolic-Execution-Engines" class="headerlink" title="Symbolic Execution Engines"></a>Symbolic Execution Engines</h2><p>important principles for the design of symbolic executors</p>
 <h4 id="Mixing-Symbolic-and-Concrete-Execution-Concolic"><a href="#Mixing-Symbolic-and-Concrete-Execution-Concolic" class="headerlink" title="Mixing Symbolic and Concrete Execution (Concolic)"></a>Mixing Symbolic and Concrete Execution (Concolic)</h4><ul>
-<li><p><strong>Main limitation of classical symbolic execution</strong>: It cannot explore feasible executions that would  result in path constraints that cannot be dealt with. For example, external code not traceable by the executor, complex constraints involving (e.g., non-linear arithmetic or transcendental functions)</p>
+<li><p><strong>Main limitation of classical symbolic execution.</strong> It cannot explore feasible executions that would  result in path constraints that cannot be dealt with. For example, external code not traceable by the executor, complex constraints involving (e.g., non-linear arithmetic or transcendental functions)</p>
 </li>
-<li><p><strong>Dynamic Symbolic Execution</strong>: the execution engine maintains a concrete store $\sigma_c$. As a consequence, the symbolic engine does not need to invoke the constraint solver to decide whether a branch condition is (un)satisfiable: this is directly tested by the concrete execution.</p>
+<li><p><strong>Dynamic Symbolic Execution.</strong> the execution engine maintains a concrete store $\sigma_c$. As a consequence, the symbolic engine does not need to invoke the constraint solver to decide whether a branch condition is (un)satisfiable: this is directly tested by the concrete execution.</p>
+</li>
+<li><p><strong>Selective Symbolic Execution.</strong> one might want to explore only some components of a software stack in full, not caring about others.</p>
 </li>
 </ul>
 
@@ -412,9 +414,9 @@
 		
 			<li><a href="/tags/NN/">NN<span>2</span></a></li>
 		
-			<li><a href="/tags/置顶/">置顶<span>1</span></a></li>
-		
 			<li><a href="/tags/Decompiler/">Decompiler<span>3</span></a></li>
+		
+			<li><a href="/tags/置顶/">置顶<span>1</span></a></li>
 		
 		 
 		</ul>
