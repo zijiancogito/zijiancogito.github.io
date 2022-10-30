@@ -160,6 +160,47 @@
 <li><p>Glow and TVM: An application feeds the input data to this inference function and obtains the predicted label as output.</p>
 </li>
 </ul>
+<h2 id="System-Design"><a href="#System-Design" class="headerlink" title="System Design"></a>System Design</h2><h4 id="Workflow"><a href="#Workflow" class="headerlink" title="Workflow."></a>Workflow.</h4><p>(1) <strong>DNN Operator Location Identification.</strong> Recovers the CFG and identifies the location of inference function and DNN operators from the input (stripped) DNN binary.</p>
+<p>(2) <strong>Operator Symmary Generation.</strong> </p>
+<ul>
+<li>Conducts loop analysis to identify loops’ information. </li>
+<li>Leverages loop’s information to perform selective symbolic execution that extracts the output of a DNN operator as symbolic expressions of its input and parameters, which capture the mathematical semantic of a DNN operator.</li>
+<li>Lift the symbolic expressions to the operator symmary of a DNN operator in their IR format includes the ASTs and other information.</li>
+<li>Generates template ASTs through the afore-mentioned operator summary generation.</li>
+</ul>
+<p>(3) DNN Model Lifting<br>Lifts each operator summary to a DNN operator and convert it to a high-level DNN representation (i.e., an ONNX model).</p>
+<ul>
+<li>Matches the AST in each operator summary with a template AST to determine its DNN operator type.</li>
+<li>Recovers the DNN topology by identify the data dependencies between DNN operators.</li>
+<li>Recovers each DNN operator’s attributes and parameters leveraging the identified DNN operator type and DNN topology, and converts the fully-recovered DNN model to an ONNX model.</li>
+</ul>
+<p>In summary, they first recover the functions and CFGs. Then, they identify the intresting functions (inference function and NN operators). Then, they extract the symbolic expressions by SSE and transform them to their IR. Then, they <strong>match the IR with their AST template and determines the NN operator type</strong>. Then, they <strong>recovers the topology by identifying the data dependencies between NN operators</strong>. Finally, they recovers each NN operator’s <strong>attributes and parameters</strong> using the operator type and topology and convert it to ONNX language.</p>
+<h2 id="Evaluation"><a href="#Evaluation" class="headerlink" title="Evaluation"></a>Evaluation</h2><h4 id="Generality"><a href="#Generality" class="headerlink" title="Generality"></a>Generality</h4><p>How many commonly-used DNN operators and models can be suported.</p>
+<p>Support 59 (84%) DNN operators.<br>Fully support 30 (81%) DNN models out of the collected 37 DNN models.</p>
+<h4 id="Correctness-Accross-different-DNN-compilers-ISAs-and-DNN-models"><a href="#Correctness-Accross-different-DNN-compilers-ISAs-and-DNN-models" class="headerlink" title="Correctness Accross different DNN compilers, ISAs, and DNN models"></a>Correctness Accross different DNN compilers, ISAs, and DNN models</h4><p>Compare the model architecture (operators and topology) and inference results of original DNN models and decompiled DNN models.</p>
+<p>-Models: MNIST, MobileNets v2, ResNet v1</p>
+<ul>
+<li><p>ISAs: Thumb, AArch64, x86-64</p>
+</li>
+<li><p>Decompiler: Glow, TVM</p>
+</li>
+</ul>
+<p>Evaluated 15 DNN binaries in total.</p>
+<p>没有说明测试的二进制是否是strip的</p>
+<h2 id="Case-Study"><a href="#Case-Study" class="headerlink" title="Case Study"></a>Case Study</h2><ul>
+<li>Extraction Attack</li>
+<li>Boosting Adversarial Attacks</li>
+</ul>
+<h2 id="Discussion-and-Limitations"><a href="#Discussion-and-Limitations" class="headerlink" title="Discussion and Limitations"></a>Discussion and Limitations</h2><ul>
+<li><p>Compilers (XLA, NNFusion) which generate DNN binaries linked with open-souce mathematical libraries to leverage the tensor operations of these libraries. To support these additional compilers, we will need to implement a dedicated analysis to identify these tensor-specific library functions. This analysis could take advantage of function matching approaches.</p>
+</li>
+<li><p>Decompiling Binary on DNN Acceleartors. GPUs, FPGAs have very diverse ISAs that are usually not supported by the general-purpose disassemblers and the symbolic execution framework. <strong>NVIDIA provides closed-source disassemblers cuobjdump and nvidiaasm</strong>, which translate the CUDA binary into SASS assembly code. However, most details of SASS assembly code are kept secret.</p>
+</li>
+</ul>
+<h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><p>reverse engineering techniques targeting smart contract[1], control firmware[2] and Bluetooth firmware[3].</p>
+<p>[1] Yi Zhou, Deepak Kumar, Surya Bakshi, Joshua Mason, Andrew Miller, and Michael Bailey. Erays: reverse engineering ethereum’s opaque smart contracts. In Proceedings of the USENIX Security Symposium (Usenix SEC), 2018.</p>
+<p>[2] Taegyu Kim, Aolin Ding, Sriharsha Etigowni, Pengfei Sun, Jizhou Chen, Luis Garcia, Saman Zonouz, Dongyan Xu, and Dave (Jing) Tian. Reverse engineering and retroﬁtting robotic aerial vehicle control ﬁrmware using dispatch. In Proceedings of the ACM International Conference on Mobile Systems, Applications, and Services (MobiSys), 2022.</p>
+<p>[3] Jianliang Wu, Ruoyu Wu, Daniele Antonioli, Mathias Payer, Nils Ole Tippenhauer, Dongyan Xu, Dave Jing Tian, and Antonio Bianchi. LIGHTBLUE: Automatic Proﬁle-Aware debloating of bluetooth stacks. In Proceedings of the USENIX Security Symposium (Usenix SEC), 2021.</p>
 	  
 	</div>
 
@@ -283,7 +324,7 @@
 	
 	   <a data-toggle="collapse" data-target="#toc"><i class="fa fa-bars"></i></a>
 	   <div id="toc" class="toc collapse in">
-			<ol class="toc-article"><li class="toc-article-item toc-article-level-1"><a class="toc-article-link" href="#DnD-A-Cross-Architecture-Deep-Neural-Network-Decompiler"><span class="toc-article-text">DnD: A Cross-Architecture Deep Neural Network Decompiler</span></a><ol class="toc-article-child"><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#Abstract"><span class="toc-article-text">Abstract</span></a></li><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#Introduction"><span class="toc-article-text">Introduction</span></a></li><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#Background-and-Motivation"><span class="toc-article-text">Background and Motivation</span></a></li></ol></li></ol>
+			<ol class="toc-article"><li class="toc-article-item toc-article-level-1"><a class="toc-article-link" href="#DnD-A-Cross-Architecture-Deep-Neural-Network-Decompiler"><span class="toc-article-text">DnD: A Cross-Architecture Deep Neural Network Decompiler</span></a><ol class="toc-article-child"><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#Abstract"><span class="toc-article-text">Abstract</span></a></li><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#Introduction"><span class="toc-article-text">Introduction</span></a></li><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#Background-and-Motivation"><span class="toc-article-text">Background and Motivation</span></a></li><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#System-Design"><span class="toc-article-text">System Design</span></a><ol class="toc-article-child"><li class="toc-article-item toc-article-level-4"><a class="toc-article-link" href="#Workflow"><span class="toc-article-text">Workflow.</span></a></li></ol></li></ol></li><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#Evaluation"><span class="toc-article-text">Evaluation</span></a><ol class="toc-article-child"><li class="toc-article-item toc-article-level-4"><a class="toc-article-link" href="#Generality"><span class="toc-article-text">Generality</span></a></li><li class="toc-article-item toc-article-level-4"><a class="toc-article-link" href="#Correctness-Accross-different-DNN-compilers-ISAs-and-DNN-models"><span class="toc-article-text">Correctness Accross different DNN compilers, ISAs, and DNN models</span></a></li></ol></li></ol></li><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#Case-Study"><span class="toc-article-text">Case Study</span></a></li><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#Discussion-and-Limitations"><span class="toc-article-text">Discussion and Limitations</span></a></li><li class="toc-article-item toc-article-level-2"><a class="toc-article-link" href="#Related-Work"><span class="toc-article-text">Related Work</span></a></li></ol></li></ol>
 		</div>
 	
 	</div>
