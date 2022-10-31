@@ -229,7 +229,62 @@
   <div class="row">
 	
 	
-		
+		<h1 id="Decompiling-x86-Deep-Neural-Network-Executables"><a href="#Decompiling-x86-Deep-Neural-Network-Executables" class="headerlink" title="Decompiling x86 Deep Neural Network Executables"></a>Decompiling x86 Deep Neural Network Executables</h1><p>Zhibo Liu, The Hong Kong University of Science and Technology</p>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>They present BTD (Bin to DNN), a decompiler for DNN executables. BTD takes DNN executables and outputs full model specifications, including types of DNN operators, network topology, dimensions, and parameters that are (nearly) identical to those of the input models. <strong>Supports different DL compilers and with full optimizations enabled on x86 platforms.</strong></p>
+<p><strong>Employs learning-based techniques to infer DNN operators, dynamic analysis to reveal network architectures, and symbolic execution to facilitate inferring dimensions and parameters of DNN operators.</strong></p>
+<p>BTD enables accurate recovery of full specifications of complex DNNs with millions of parameters (e.g., ResNet). The recivered DNN specifications can be re-compiled into a new DNN executable exhibiting identical behavior to the input executable.</p>
+<p>They also demonstrate cross-architecture legacy code reuse using BTD, and envision BTD being used for other critical downstream tasks like DNN security hardening and patching.</p>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>A DL compiler takes a high-level model specification (e.g., in ONNX format) and generates corresponding low-level optimized binary code for a variety of hardware backends (from cloud servers to embedded devices, GPUs, CPUs, and FPGAs).</p>
+<p>Compilation of high-level models into binary code typically involves multiple optimization cycles. DL compiler can optimize code utilizing domain-specific hardware features and abstractions. However, they observe that different low-level representaions of the same DNN operator in executables generally retain invariant high-level semantics, as DNN operators like ReLU and Sigmoid, are mathematically defined in a rigorous manner.</p>
+<p>They proposed a three-step approach for full recovery of DNN operators, network topology, dimensions, and parameters.</p>
+<ul>
+<li>BTD conducts representation learning over disassembler-emitted assembly code to classify assembly functions as DNN operators, such as convolution layers (Conv).</li>
+<li>Dynamic analysis is then used to chain DNN operators together, thus recovering their topological connectivity.</li>
+<li><p>To further recover dimensions and parameters of certain DNN operators (e.g., Conv), they launch trace-based symbolic execution to generate symbolic constraints, primarily over floating-point-related computations. The human-readable symbolic constraints denote semantics of corresponding DNN operators that are invariant across different compilation settings. To deliver an automated pipeline, they then define patterns over symbolic constraints to automatically recover dimensions and memory layouts of parameters. They incorporate taint analysis to largely reduce the cost of symbolic execution which is more heavy weight.</p>
+</li>
+<li><p>BTD is scalable to recover DNN models from 65 DNN executables, including nearly 3 million instructions, in 60 hours with negligible errors.</p>
+</li>
+<li><p>Moreover, to demonstrate BTD’s correctness, they rebuild decompiled model specifications with PyTroch. The results show that almost all decompiled DNN models can be recompiled into new executables that behave identically to the reference executables. </p>
+</li>
+</ul>
+<h2 id="Preliminary"><a href="#Preliminary" class="headerlink" title="Preliminary"></a>Preliminary</h2><p><strong>DNN Compiler Frontend: Graph IRs and Optimizations.</strong> Convert DNN computation graphs into graph IRs. Graph IRs specify high-level inputs and outputs of each operator, but do not restrict how each operator is implemented.<br>Transformation and optimization of computation grpahs (IRs).</p>
+<p><strong>DNN Compiler Backend: Low-Level IRs and Optimizations.</strong> Graph IR operators can be converted into low-level linear algebra operators. For example, a fully connected (FC) operator can be representated as matrix multiplication followed be addition. Low-level IRs are usually memory related. Hence, optimizations at this step can include hardware intrinsic (固有的) mapping, memory allocation, loop-related optimizations, and parallelization.<br>Transformation and optimization of low-level linear algebra operators.</p>
+<p><strong>DNN Compiler Backend: Scheduling and Tuning.</strong> Policies mapping an operator to low-level code are called <em>schedules</em>. </p>
+<p><strong>DNN Compiler Backend: Code Gen.</strong> When generating machine code, a DNN operator (or several fused operators) is typically compiled into an individual assembly function. </p>
+<h2 id="Decompiling-DNN-Executables"><a href="#Decompiling-DNN-Executables" class="headerlink" title="Decompiling DNN Executables"></a>Decompiling DNN Executables</h2><p><strong>Definition.</strong> The full specifications include: (1) DNN operators(e.g., ReLU, Pooling, and Conv) and their topological connectivity, (2) dimensions of each DNN operator, such as #channels in Conv, and (3) parameters of each DNN operator, such as weights and biases, which are important configurations learned during model training.</p>
+<p><strong>Comparison with C/C++ Decompilation.</strong></p>
+<ul>
+<li>Statements vs. Higher-Level Semantics: Software decompilation line-by-line translates machine instructions into C/C++ statements. </li>
+<li>Common Uncertainty: There is no fixed mapping between C/C++ statements and assembly instructions. DL compilers may adopt different optimizations for compiling the same DNN operators. The compiled code may exhibit distinct syntactic forms. Nevertheless, the semantics of DNN operators are retained.</li>
+<li>End Goal: Software decompilation is fundamentally undecidable, and decompiled C/C++ code mainly aids (human-based) analysis and comprehension, not recompilation. Besides helping (human-based) comprehension, BTD boosts model reuse, migration, security hardening, and adversarial attacks.</li>
+</ul>
+<p>NN的反编译主要是一个分类问题，C/C++的反编译是生成问题。 </p>
+<p><strong>Opacity in DNN Executables.</strong> </p>
+<p>Different compilers and optimizations can result in complex and distinct machine code realizations. </p>
+<p><strong>Design Focus.</strong> BTD is designed to process common DNN models compiled by standard DL compilers. </p>
+<h2 id="Design"><a href="#Design" class="headerlink" title="Design"></a>Design</h2><p>Deduce high-level model specifications from low-level instructions. </p>
+<p>We advocate DL decompilers to satisfy the following criteria:</p>
+<ul>
+<li><strong>R1 (Generalizability):</strong> Avoid brittle assumptions. Generalize across compilers, optimizations, and versions.</li>
+<li><strong>R2 (Correctness):</strong> Use effective, resilient methods and produce correct outputs.</li>
+<li><strong>R3 (Performance):</strong> Be efficient when necessary.</li>
+<li><strong>R4 (Automation):</strong> Avoid manual analysis and automate the decompilation process.</li>
+</ul>
+<h4 id="Workflow"><a href="#Workflow" class="headerlink" title="Workflow"></a>Workflow</h4><p>(1) Learning-based techniques for recognizing assembly function as DNN operators like Conv.</p>
+<p>(2) Reconstruct the network topology using dynamic analysis.</p>
+<p>(3) Use trace-based symbolic execution to extract operator semantics from assembly code and then recover dimensions and parameters with semantics-based patterns. Some operators are too costly for symbolic execution to analyze. They use taint analysis to keep only tainted sub-traces for more expensive symbolic execution to analyze.</p>
+<p>(4) BTD produces model specifications that behave identically to original models. BTD does not guarantee 100% correct outputs. Procedures users can follow to fix errors.</p>
+<ul>
+<li><p><strong>Type I</strong> operators, including activation functions like ReLU and element-wise arithmetic operators, do not ship with parameters; recovering their dimensions is trivial.</p>
+</li>
+<li><p><strong>Type II and III</strong> operators require dimensions or parameters, such as Polling’s stride <em>S</em> and kernel size <em>K</em>.</p>
+</li>
+<li><p><strong>Type IV</strong> operators require both parameters and dimensions.</p>
+</li>
+</ul>
+<p><strong>Compilation Provenance.</strong> (1) which DL compiler is used, and (2) whether e is compiled with full optimization -O3 or no optimization -O0. The authors extend their learning-based method to predict compilation provenance from assembly code.</p>
+<p>Some patterns are designed separately for </p>
+
 	
 	</div>
   <a type="button" href="/2022/10/25/Decompiling-x86-Deep-Neural-Network-Executables/#more" class="btn btn-default more">阅读此文</a>
