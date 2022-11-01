@@ -183,7 +183,21 @@
 </li>
 </ul>
 <p><strong>Compilation Provenance.</strong> (1) which DL compiler is used, and (2) whether e is compiled with full optimization -O3 or no optimization -O0. The authors extend their learning-based method to predict compilation provenance from assembly code.</p>
-<p>Some patterns are designed separately for </p>
+<p>Some patterns are designed separately for Glow- and TVM-emitted executables.</p>
+<h3 id="DNN-Operator-Recovery"><a href="#DNN-Operator-Recovery" class="headerlink" title="DNN Operator Recovery"></a>DNN Operator Recovery</h3><p>Train a neural model to map assembly functions to DNN operators. Use representation learning and treat x86 opcodes as language tokens.</p>
+<p><strong>Atomic OPs.</strong> Define atomic OPs over x86 opcodes. Each opcode is thus split into atomic OPs. Use atomic OP sequences represent a DNN operator.</p>
+<p><strong>Dividing Opcodes into Atomic OPs.</strong> BPE. They split each opcode into a sequence of characters and counted consecutive characters to find the most frequent ones.</p>
+<p><strong>Learning over Atomic OPs.</strong> Train a neural identifier model with a sequence of atomic OPs from an assembly function as inputs. The model outputs a 1D vector with N dimensions (N is the total number of unique DNN operators), where multiple “1” in the vector implies that this assembly function represents several fused DNN operators (融合算子). </p>
+<p><strong>From Operators to Compilation Provenance.</strong> 直接使用之前的函数的embeddings分类，认为这个任务很简单</p>
+<h3 id="DNN-Network-Topology-Recovery"><a href="#DNN-Network-Topology-Recovery" class="headerlink" title="DNN Network Topology Recovery"></a>DNN Network Topology Recovery</h3><p>A DNN operator has a fixed number of inputs and outputs. Use Intel Pin, a dynamic instrucmentation tool, to hook every callsite. Record the memory addresses of inputs/outputs passed to callsites and connect two operators if the successor’s inputs match the predecessor’s outputs.</p>
+<p>This step does not rely on any compiler-specific assumptions, however, dynamic analysis is needed. (Intel Pin 也局限了使用的平台，其他架构或许没有这种工具或者无法监控内存，动态分析开销也比较大）</p>
+<p>This dynamic analysis is not limited by “coverage”. （存在疑问，依赖于DNN编译器的先验知识）</p>
+<h3 id="Dimension-and-Parameter-Recovery"><a href="#Dimension-and-Parameter-Recovery" class="headerlink" title="Dimension and Parameter Recovery"></a>Dimension and Parameter Recovery</h3><p>Inputs and parameters are typically stored separately in memory, whereas neighbor input/parameter elements are stored contiguously. （存在疑问，是栈空间还是堆空间，连续可能是偶然的）</p>
+<p><strong>General Workflow.</strong> summarize operator invariant semantics with symbolic execution.</p>
+<p>(1) log execution traces and use taint analysis to shroten the traces.</p>
+<p>(2) use symbolic execution to summarize the input-output constraint of each assembly function.</p>
+<p>(3) infer dimensions using patterns defined over constraints and futher extract parameters.</p>
+<h4 id="Trace-Logging-and-Taint-Analysis"><a href="#Trace-Logging-and-Taint-Analysis" class="headerlink" title="Trace Logging and Taint Analysis"></a>Trace Logging and Taint Analysis</h4><p>Use Intel Pin to log the execution trace of an operator’s assembly function.</p>
 
 	
 	</div>
@@ -359,11 +373,11 @@
 		<h4>标签云</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
+			<li><a href="/tags/置顶/">置顶<span>1</span></a></li>
+		
 			<li><a href="/tags/Decompiler/">Decompiler<span>3</span></a></li>
 		
 			<li><a href="/tags/NN-Decompiler/">NN Decompiler<span>2</span></a></li>
-		
-			<li><a href="/tags/置顶/">置顶<span>1</span></a></li>
 		
 		 
 		</ul>
