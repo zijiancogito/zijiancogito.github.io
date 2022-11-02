@@ -198,6 +198,49 @@
 <p>(2) use symbolic execution to summarize the input-output constraint of each assembly function.</p>
 <p>(3) infer dimensions using patterns defined over constraints and futher extract parameters.</p>
 <h4 id="Trace-Logging-and-Taint-Analysis"><a href="#Trace-Logging-and-Taint-Analysis" class="headerlink" title="Trace Logging and Taint Analysis"></a>Trace Logging and Taint Analysis</h4><p>Use Intel Pin to log the execution trace of an operator’s assembly function.</p>
+<p><strong>Pin takes several hours to log one trace.</strong></p>
+<p>Hence, analyzing a subtrace containing one iteration of the outermost loop is sufficient (as long as a complete calculation of an output element is reflected in this subtrace).</p>
+<p><strong>Taint Analysis.</strong> Use backward taint analysis to rule out instructions that are not involved in computing outputs.</p>
+<p>Trace logging records each instructions’s execution context, including concrete memory address values. For each memory acess during taint propagation, they compute concrete addresses to taint/untaint memory cells accordingly.</p>
+<h4 id="Symbolic-Execution"><a href="#Symbolic-Execution" class="headerlink" title="Symbolic Execution"></a>Symbolic Execution</h4><p>Launch SE over tainted x86 instructions.</p>
+<p><strong>Identifying Memory Layouts.</strong> 建立了一个表，对应每个算子传入的参数应该是inputs还是parameters，还是outputs. Then collect and identify inputs and parameters’ memory addresses by querying the configuration. Identify memory addresses and classify them into weights and inputs. Cluster all addresses of the same parameter to scope that parameter’s memory region (i.e., the starting address and size).</p>
+<h4 id="Dimension-Recovery"><a href="#Dimension-Recovery" class="headerlink" title="Dimension Recovery"></a>Dimension Recovery</h4><p>Conv operator</p>
+<p><strong>Kernel Size K, Input Channel $I_C$, Zero Padding P.</strong> </p>
+<p><strong>Output Channels $O_C$.</strong><br>这一部分需要了解相关函数的参数所代表的含义，根据内存大小和布局推测这几个要素。</p>
+<h4 id="Recover-Parameters"><a href="#Recover-Parameters" class="headerlink" title="Recover Parameters"></a>Recover Parameters</h4><p>Idenfity their starting addresses and memory layouts.<br>识别存储参数的内存区域。<br>Use Pin to dump parameters to disk at runtime.<br>同样依赖于运行时。</p>
+<p><strong>Handling Compiler Optimizations.</strong> SSE parallelism by reading 4 (or 8) floating numbers from contiguous memory into one register. These modify Conv’s standard memory layout, impeding parameter recovery. Similar to dimension inference, they use patterns to identify optimized layouts. </p>
+<h3 id="Executables-Emitted-by-NNFusion"><a href="#Executables-Emitted-by-NNFusion" class="headerlink" title="Executables Emitted by NNFusion"></a>Executables Emitted by NNFusion</h3><p>Some DL compilers generate executables statically linked with kernel libraries.</p>
+<p>It is easier to decompile NNFusion- and XLA-emitted executables since they contain warpper function to invoke target operator implementations in kernel libraries. </p>
+<p>运行时，通过Pin恢复网络拓扑和劫持通过warpper发送的数据。劫持的数据包括dimensions和指向参数的pointers. 然后从内存中获取参数。</p>
+<h2 id="Evaluation"><a href="#Evaluation" class="headerlink" title="Evaluation"></a>Evaluation</h2><p><strong>RQ1 (Comprehensiveness and Correctness):</strong> Is BTD comprehensive and correct to process all operators used in common DL models compiled with <strong>different compilers</strong> and <strong>optimization options</strong>?</p>
+<ul>
+<li><p>Predicting DNN Operator Type: Glow has 14 types and TVM has 30. </p>
+</li>
+<li><p>数据偏差：基于统计分布的模型仍然会考虑到某一操作经常出现在另一操作之后使得分类结果偏向于出现概率大的类别，从而产生错误。</p>
+</li>
+<li><p>具有相似汇编代码的操作：也会存在误分类</p>
+</li>
+<li><p><strong>DNN Network Topology Recovery:</strong> compare the recovered network topology with the reference DNN’s computation graphs.</p>
+</li>
+<li><p><strong>Parameter and Dimension Recovery:</strong> Except for TVM -O0, it is difficult to compare the recovered dimensions/parameters with the reference due to compiler optimization.</p>
+</li>
+<li><p><strong>Recompilation</strong> They re-implement DNN models in PyTorch using recovered DNN models, then export models as ONNX files and compiled into DNN executables using the same compilation provenance.<br>compare the predicted labels and confidence scores yielded by recompiled and reference executables over every input from validation dataset.</p>
+</li>
+<li><p><strong>Decompiling NNFusion Outputs</strong> </p>
+</li>
+<li><p><strong>Other Models</strong> NLP Models, Audio Processing Models.</p>
+</li>
+</ul>
+<p><strong>RQ2 (Robutness):</strong> Is BTD robust to survive frequent DL compiler implementation changes?</p>
+<p>Evaluated BTD with prior versions of DL compilers released in the past two years.</p>
+<p>BTD is robust enough against changes in current and prior versions of DL compilers. We anticipate that compiler changes are unlikely to affect the robustness of BTD in the near future.</p>
+<p><strong>RQ3 (Extensibility):</strong> Can BTD be easily extended to support new operators and models? What efforts are needed?</p>
+<p>Recovery of parameters/dimensions of complex operator. Supporting a new operator may need new or existing patterns. Symbolic constraints are generally human readable. We typically need several hours to desion and validate a new pattern for operators without complex optimization.</p>
+<p>Users experienced in DL models can spend reasonable effort to add support for new operators and models by modifying existing patterns in BTD.</p>
+<p><strong>RQ4 (Error Fixing):</strong> How does BTD handle decompilation errors?</p>
+<p>On one hand, with rules presented in Sec. 6, BTD can detect and automatically fix the errors exposed when decompiling the ResNet18 executable.</p>
+<p>To cope with decompilation defects, BTD provides error detection &amp; automated fixing mechanism, including a collection of rules derived from domain-specific knowledge and observations.</p>
+<h2 id="Discussion"><a href="#Discussion" class="headerlink" title="Discussion"></a>Discussion</h2><p>DL compilers produce distinct executables on GPUs and CPUs. For example, TVM creates a standalone DNN executable on CPU, but a runtime library, including detailed model information, and an OpenCL/CUDA executable on GPU.</p>
 
 	
 	</div>
@@ -412,11 +455,11 @@
 		<h4>标签云</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/NN-Decompiler/">NN Decompiler<span>2</span></a></li>
-		
 			<li><a href="/tags/Decompiler/">Decompiler<span>3</span></a></li>
 		
 			<li><a href="/tags/置顶/">置顶<span>1</span></a></li>
+		
+			<li><a href="/tags/NN-Decompiler/">NN Decompiler<span>2</span></a></li>
 		
 		 
 		</ul>
