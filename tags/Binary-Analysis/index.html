@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>骈文 | 春秋一语</title>
+  <title>Binary Analysis | 春秋一语</title>
   <meta name="author" content="Zijian">
   
   
@@ -100,7 +100,7 @@
 
 <!-- title -->
 <div class="page-header ">
-  <h1 class="archive-title-category title ">骈文</h1>
+  <h1 class="archive-title-tag title ">Binary Analysis</h1>
 </div>
 
 <div class="row page">
@@ -119,8 +119,8 @@
 	
 	<!-- display as entry -->	
 		<h3 class="title">
-			<div class="date"> 2022-10-20 </div>
-			<div class="article-title"><a href="/2022/10/20/滕王阁序/" >滕王阁序</a></div>						
+			<div class="date"> 2022-11-04 </div>
+			<div class="article-title"><a href="/2022/11/04/angr/" >angr</a></div>						
 		</h3>
 	
 
@@ -129,10 +129,23 @@
   <div class="row">
 	
 	
-		
+		<h1 id="Angr学习"><a href="#Angr学习" class="headerlink" title="Angr学习"></a>Angr学习</h1><h2 id="Why-isn’t-symbolic-execution-doing-the-thing-I-want"><a href="#Why-isn’t-symbolic-execution-doing-the-thing-I-want" class="headerlink" title="Why isn’t symbolic execution doing the thing I want?"></a>Why isn’t symbolic execution doing the thing I want?</h2><ul>
+<li><p>当遇到错误状态：<code>print(simgr)</code>, <code>print(simgr.errored)</code>.</p>
+</li>
+<li><p>如果遇到错误状态，并且不能立刻知道哪里错误，可以在crash点调用pdb shell，通过<code>simgr.errored[n].debug()</code>.</p>
+</li>
+<li><p>当状态没有达到期望的地址：<code>import pprint; pprint.pprint(state.history.descriptions.hardcopy)</code>. 会打印出符号执行引擎在每一步的高级总结和状态历史。可以看到基本块追踪和执行过的前驱。如果使用的是unicorn引擎，可以检查<code>state.history.bbl_addrs.hardcopy</code>来查看每一个unicorn的invocation里执行了哪些基本块。</p>
+</li>
+<li><p>当状态进入了错误的路径，检查什么约束让它走错了：<code>print(state.solver.constraints)</code>。 如果状态通过了一个分支，可以检查最近的分支通过<code>state.history.events[-1]</code>.</p>
+</li>
+</ul>
+<h2 id="获取angr做了什么的诊断信息"><a href="#获取angr做了什么的诊断信息" class="headerlink" title="获取angr做了什么的诊断信息"></a>获取angr做了什么的诊断信息</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">import logging</span><br><span class="line">logging.getLogger(&#x27;angr&#x27;).setLevel(&#x27;DEBUG&#x27;)</span><br></pre></td></tr></table></figure>
+<p><code>WARNING</code>级别是默认的，会输出一些信息，而<code>INFO</code>级别会输出更多信息，比如<code>logging.getLogger(&#39;angr.analyses&#39;).setLevel(&#39;INFO&#39;)</code>会输入所有的分析信息。</p>
+<h2 id="序列化angr对象"><a href="#序列化angr对象" class="headerlink" title="序列化angr对象"></a>序列化angr对象</h2><p>使用Pickle。<code>pickle.dumps(obj, -1)</code></p>
+
 	
 	</div>
-  <a type="button" href="/2022/10/20/滕王阁序/#more" class="btn btn-default more">阅读此文</a>
+  <a type="button" href="/2022/11/04/angr/#more" class="btn btn-default more">阅读此文</a>
 </div>
 
 	       
@@ -206,17 +219,17 @@
 		<h4>标签云</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/置顶/">置顶<span>1</span></a></li>
-		
-			<li><a href="/tags/Binary-Analysis/">Binary Analysis<span>1</span></a></li>
-		
-			<li><a href="/tags/Decompiliation/">Decompiliation<span>1</span></a></li>
-		
 			<li><a href="/tags/Decompiler/">Decompiler<span>3</span></a></li>
 		
 			<li><a href="/tags/Symbolic-Execution/">Symbolic Execution<span>1</span></a></li>
 		
+			<li><a href="/tags/置顶/">置顶<span>1</span></a></li>
+		
 			<li><a href="/tags/NN-Decompiler/">NN Decompiler<span>2</span></a></li>
+		
+			<li><a href="/tags/Binary-Analysis/">Binary Analysis<span>1</span></a></li>
+		
+			<li><a href="/tags/Decompiliation/">Decompiliation<span>1</span></a></li>
 		
 		 
 		</ul>
