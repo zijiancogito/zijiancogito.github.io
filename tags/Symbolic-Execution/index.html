@@ -302,6 +302,10 @@
 <h3 id="Exploration-Techniques"><a href="#Exploration-Techniques" class="headerlink" title="Exploration Techniques"></a>Exploration Techniques</h3><p>使用探索技术调用simgr.use_technique(tech)，其中tech是一个ExplorationTechnique的子类实例，angr.exploration_techniques可以看到angr内置的探索技术</p>
 <h2 id="Execution-Engines"><a href="#Execution-Engines" class="headerlink" title="Execution Engines"></a>Execution Engines</h2><h3 id="Breakpoints"><a href="#Breakpoints" class="headerlink" title="Breakpoints"></a>Breakpoints</h3><p>可以设置在执行到某一类操作时停止，比如内存读</p>
 <h2 id="Analyses-1"><a href="#Analyses-1" class="headerlink" title="Analyses"></a>Analyses</h2><p>内置的分析</p>
+<h1 id="Claripy"><a href="#Claripy" class="headerlink" title="Claripy"></a>Claripy</h1><p>是angr的求解引擎。<br>Claripy AST会提供一种可以和具体和符号的表达式进行交互的方式。</p>
+<p>前端提供不同的参数来eval这些表达式。例如FullFrontend使用SMT后端求解符号表达式。LightFrontend使用抽象数据域后端。</p>
+<h2 id="Claripy-ASTs"><a href="#Claripy-ASTs" class="headerlink" title="Claripy ASTs"></a>Claripy ASTs</h2><p>现在claripy支持下面这些类型的AST： BV（bitvector），FP（float point），Bool（Boolean operation）</p>
+<h2 id="Claripy-Backends"><a href="#Claripy-Backends" class="headerlink" title="Claripy Backends"></a>Claripy Backends</h2><p>claripy对外界暴露的接口是AST</p>
 
 	
 	</div>
@@ -379,17 +383,17 @@
 		<h4>标签云</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/置顶/">置顶<span>1</span></a></li>
-		
 			<li><a href="/tags/NN-Decompiler/">NN Decompiler<span>2</span></a></li>
 		
-			<li><a href="/tags/Decompiliation/">Decompiliation<span>1</span></a></li>
-		
-			<li><a href="/tags/Decompiler/">Decompiler<span>3</span></a></li>
+			<li><a href="/tags/置顶/">置顶<span>1</span></a></li>
 		
 			<li><a href="/tags/Symbolic-Execution/">Symbolic Execution<span>1</span></a></li>
 		
 			<li><a href="/tags/Binary-Analysis/">Binary Analysis<span>1</span></a></li>
+		
+			<li><a href="/tags/Decompiler/">Decompiler<span>3</span></a></li>
+		
+			<li><a href="/tags/Decompiliation/">Decompiliation<span>1</span></a></li>
 		
 		 
 		</ul>
